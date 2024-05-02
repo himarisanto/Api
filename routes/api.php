@@ -30,7 +30,7 @@ Route::middleware('auth.api')->group(function () {
     Route::get('/siswa', [SiswaController::class, 'index']);
     Route::get('/siswa/{id}', [SiswaController::class, 'show']);
     Route::post('/siswa', [SiswaController::class, 'store']);
-    Route::post('/siswa/{id}', [SiswaController::class, 'update']);
+    Route::post('/siswa/{id}', [SiswaController::class, 'update']);   
     Route::delete('/siswa/{id}', [SiswaController::class, 'destroy']);
     // route crud user
     Route::get('/users', [UserController::class, 'index']);
