@@ -38,7 +38,7 @@ Route::middleware('auth.api')->group(function () {
     Route::post('/users', [UserController::class, 'store']);
     Route::post('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
-
+    // route crud server
     Route::get('/server', [ServerController::class, 'index']);
     Route::post('/server', [ServerController::class, 'store']);
     Route::get('/server/{server}', [ServerController::class, 'show']);
