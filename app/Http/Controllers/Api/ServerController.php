@@ -43,13 +43,13 @@ class ServerController extends Controller
     }
     public function show(string $id)
     {
-        $server = Server::find($id);
+        $data = Server::find($id);
 
-        if ($server) {
+        if ($data) {
             return response()->json([
                 'status' => true,
                 'message' => 'Data ditemukan',
-                'data' => $server
+                'data' => $data
             ], 200);
         } else {
             return response()->json([
