@@ -11,7 +11,11 @@ class ServerController extends Controller
     public function index()
     {
         $servers = Server::all();
-        return response()->json($servers);
+        return response()->json([
+            'status' => true,
+            'message' => 'Data Ditemukan',
+            'data' => $servers
+        ], 200);
     }
 
     public function store(Request $request)
@@ -27,20 +31,32 @@ class ServerController extends Controller
         ]);
 
         $server = Server::create($request->all());
-        
+
         if ($server) {
-            $massage = 'Data berhasil di masukkan.';
-            $status =201;
+            $message = 'Data berhasil dimasukkan.';
+            $status = 202;
         } else {
-            $massage = 'gagal memasukan data.';
+            $message = 'Gagal memasukkan data.';
             $status = 400;
         }
-        return response()->json(['massage' => $massage, 'data' => $server], $status);
+        return response()->json(['message' => $message, 'data' => $server], $status);
     }
-
-    public function show(Server $server)
+    public function show(string $id)
     {
-        return response()->json($server);
+        $server = Server::find($id);
+
+        if ($server) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Data ditemukan',
+                'data' => $server
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak ditemukan di database'
+            ], 404);
+        }
     }
 
     public function update(Request $request, Server $server)
@@ -56,16 +72,28 @@ class ServerController extends Controller
         ]);
 
         if ($server->update($request->all())) {
-            $message = 'Data berhasil diUpdate.';
+            $message = 'Data berhasil diupdate.';
         } else {
-            $message = 'Gagal Updata a-data';
+            $message = 'Gagal update data';
         }
         return response()->json(['message' => $message, 'data' => $server], $server->wasChanged() ? 200 : 400);
     }
-    public function destroy(Server $server)
+
+    public function destroy(string $id)
     {
+        $server = Server::find($id);
+
+        if (empty($server)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak ditemukan',
+            ], 404);
+        }
         $server->delete();
 
-        return response()->json(null, 204);
+        return response()->json([
+            'status' => true,
+            'message' => 'Sukses melakukan delete data'
+        ]);
     }
 }
