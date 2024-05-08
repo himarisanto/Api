@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use PharIo\Manifest\Email;
 
 
 
@@ -18,44 +19,54 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $data_users = [];
-    
+
         $loginUser = Auth::guard('api')->user();
         if ($loginUser && $loginUser->level === 'admin') {
             $users = User::all();
         } else {
             $users = User::where('id', $loginUser->id)->get();
         }
-    
+
         foreach ($users as $user) {
             $user->gambar = '/storage/images/' . $user->gambar;
             $data_users[] = $user;
         }
-    
+
         return response()->json([
             'status' => true,
             'message' => 'Sukses mengambil data',
             'data' => $data_users
         ], 200);
     }
-    
+    public function GetTotalUsers()
+    {
+        $totalUsers = User::count();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Jumlah total User',
+            'data' => $totalUsers
+        ]);
+    }
 
     public function store(Request $request)
     {
-        $rules = [
+        $validator = Validator::make($request->all(), [
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users,email',
             'password' => 'required|string|min:8',
             'level' => 'required|in:admin,user'
-        ];
+        ], [
+            'gambar.required' => 'Gambar masih Kosong',
+            'name.required' => 'Name masih kosong',
+            'email.required' => 'Email masih kosong',
+            'Password.required' => 'Password Masih Kosong',
+            'level.required' => 'Level masih kosong',
+        ]);
 
-        $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Gagal memasukkan data',
-                'data' => $validator->errors()
-            ]);
+            return response()->json(['message' => $validator->errors()->first()], 400);
         }
 
         $gambarPath = $request->file('gambar')->store('public/images');
@@ -92,36 +103,40 @@ class UserController extends Controller
             ], 404);
         }
     }
-
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
         $user = User::find($id);
-
         if (!$user) {
             return response()->json([
                 'status' => false,
                 'message' => 'Data tidak ditemukan'
             ], 404);
         }
-
-        $rules = [
-            'gambar' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            'name' => 'string|max:255',
-            'email' => 'string|email|max:255|unique:users,email,' . $id,
-            'password' => 'string|min:8',
-            'level' => 'in:admin,user'
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
+        $validateData = [];
+        if ($request->hasFile('gambar')) {
+            $validateData['gambar'] = 'image|mimes:jpeg,png,jpg,gif|max:2048';
+        }
+        if ($request->has('name')) {
+            $validateData['name'] = 'string|max:255';
+        }
+        if ($request->has('email')) {
+            $validateData['email'] = 'string|email|max:255|unique:users,email,' . $id;
+        }
+        if ($request->has('password')) {
+            $validateData['password'] = 'string|min:8';
+        }
+        if ($request->has('level')) {
+            $validateData['level'] = 'in:admin,user';
+        }
+        $validator = validator::make($request->all(), $validateData);
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Gagal melakukan update data',
+                'message' => 'Gagal melakukan update Data',
                 'data' => $validator->errors()
             ], 400);
         }
-
         if ($request->hasFile('gambar')) {
             if ($user->gambar) {
                 Storage::delete('public/images/' . $user->gambar);
@@ -134,7 +149,7 @@ class UserController extends Controller
         $user->name = $request->input('name', $user->name);
         $user->email = $request->input('email', $user->email);
         if ($request->has('password')) {
-            $user->password = Hash::make($request->password);
+            $user->password = hash::make($request->password);
         }
         $user->level = strtolower($request->input('level', $user->level));
 
@@ -142,23 +157,22 @@ class UserController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Sukses Melakukan update data',
+            'message' => 'Sukses melakukan update data',
             'data' => $user
         ]);
     }
-
     public function destroy($id)
     {
         $loginUser = Auth::guard('api')->user();
 
-        // periksa pengguna apakah admin atau user
+        // cek periksa pengguna apakah admin atau user
         if ($loginUser && $loginUser->level ===  'admin') {
             $user = User::find($id);
 
             if (!$user) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Data tidak ditemukan' 
+                    'message' => 'Data tidak ditemukan'
                 ], 404);
             }
 

@@ -28,24 +28,33 @@ class SiswaController extends Controller
             'data' => $data_siswa
         ], 200);
     }
-
+    public function GetTotalSiswa()
+    {
+        $totalSiswa = Siswa::count();
+        return response()->json([
+            'status' => true,
+            'message' => 'Jumlah total siswa',
+            'data' => $totalSiswa
+        ]);
+    }
     public function store(Request $request)
     {
-        $rules = [
+        $validator = Validator::make($request->all(), [
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'no_absen' => 'required|integer',
             'nama' => 'required|string',
             'kelas' => 'required|string',
             'jurusan' => 'required|string',
-        ];
+        ], [
+            'gambar.required' => 'Gambar masih Kosong',
+            'no_absen.required' => 'No_absen masih kosong',
+            'nama.required' => 'Nama masih Kosong',
+            'kelas.required' => 'kelas masih kosong',
+            'jurusan.required' => 'Jurusan Masih kosong',
+        ]);
 
-        $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Gagal memasukkan data',
-                'data' => $validator->errors()
-            ]);
+            return response()->json(['message' => $validator->errors()->first()], 400);
         }
 
         $imagePath = $request->file('gambar')->store('public/images');
@@ -85,7 +94,6 @@ class SiswaController extends Controller
 
     public function update(Request $request, string $id)
     {
-        // dd($request);
         $dataSiswa = Siswa::find($id);
 
         if (empty($dataSiswa)) {
@@ -95,43 +103,58 @@ class SiswaController extends Controller
             ], 404);
         }
 
-        $rules = [
-            'gambar' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            'no_absen' => 'required|integer',
-            'nama' => 'required|string',
-            'kelas' => 'required|string',
-            'jurusan' => 'required|string',
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Gagal melakukan update data',
-                'data' => $validator->errors()
-            ]);
+        $validateDataSiswa = [];
+        if ($request->hasFile('gambar')) {
+            $validateDataSiswa['gambar'] = 'image|mimes:jpeg,png,jpg,gif|max:2048';
+        }
+        if ($request->has('no_absen')) {
+            $validateDataSiswa['no_absen'] = 'required|integer';
+        }
+        if ($request->has('nama')) {
+            $validateDataSiswa['nama'] = 'required|string';
+        }
+        if ($request->has('kelas')) {
+            $validateDataSiswa['kelas'] = 'required|string';
+        }
+        if ($request->has('jurusan')) {
+            $validateDataSiswa['jurusan'] = 'required|string';
         }
 
-
+        if (!empty($validateDataSiswa)) {
+            $validated = $request->validate($validateDataSiswa);
+            if ($dataSiswa->update($validated)) {
+                $message = 'Data Berhasil diupdate.';
+            } else {
+                $message = 'Gagal Update data kedatabase';
+            }
+        } else {
+            $message = 'Tidak ada yang diupdate.';
+        }
 
         if ($request->hasFile('gambar')) {
             $imagePath = $request->file('gambar')->store('public/images');
-            $imageName = basename($imagePath);
-            $dataSiswa->gambar = $imageName;
+            $imageNama = basename($imagePath);
+            $dataSiswa->gambar = $imageNama;
         }
 
-        $dataSiswa->no_absen = $request->no_absen;
-        $dataSiswa->nama = $request->nama;
-        $dataSiswa->kelas = $request->kelas;
-        $dataSiswa->jurusan = $request->jurusan;
+        if ($request->has('no_absen')) {
+            $dataSiswa->no_absen = $request->no_absen;
+        }
+        if ($request->has('nama')) {
+            $dataSiswa->nama = $request->nama;
+        }
+        if ($request->has('kelas')) {
+            $dataSiswa->kelas = $request->kelas;
+        }
+        if ($request->has('jurusan')) {
+            $dataSiswa->jurusan = $request->jurusan;
+        }
+
         $dataSiswa->save();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Sukses Melakukan update data'
-        ]);
+        return response()->json(['message' => $message, 'data' => $dataSiswa], $dataSiswa->wasChanged() ? 200 : 400);
     }
+
     public function destroy(string $id)
     {
         $dataSiswa = Siswa::find($id);
