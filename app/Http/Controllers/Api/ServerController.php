@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -10,16 +10,26 @@ use Illuminate\Support\Facades\Validator;
 
 class ServerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $servers = Server::all();
+        $perPage = $request->query('per_page', 10);
+        $data_servers = [];
+
+        $servers = Server::orderBy('nama_koneksi', 'asc')->paginate($perPage);
+        foreach ($servers as $server) {
+            $data_servers[] = $server;
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Data Ditemukan di database',
-            'data' => $servers
+            'data' => $data_servers,
+            'meta' => [
+                'currentpage' => $servers->currentPage(),  
+                'total' => $servers->total(),
+            ],
         ], 200);
     }
-
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [

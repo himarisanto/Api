@@ -17,7 +17,7 @@ class SiswaSeeder extends Seeder
     {
         $faker = \Faker\Factory::create('id_ID');
 
-        for ($i = 0; $i < 15; $i++) {
+        for ($i = 0; $i < 10000; $i++) {
      
             $imageName = $faker->image(storage_path('app/public/images'), 400, 300, null, false);
 

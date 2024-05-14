@@ -28,14 +28,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware('auth.api')->group(function () {
     // route crud siswa
     Route::get('/siswa', [SiswaController::class, 'index']);
-    Route::get('/total-siswa', [SiswaController::class, 'getTotalSiswa']);
     Route::get('/siswa/{id}', [SiswaController::class, 'show']);
     Route::post('/siswa', [SiswaController::class, 'store']);
     Route::post('/siswa/{id}', [SiswaController::class, 'update']);
     Route::delete('/siswa/{id}', [SiswaController::class, 'destroy']);
     // route crud user
     Route::get('/users', [UserController::class, 'index']);
-    Route::get('/total-users', [UserController::class, 'getTotalUsers']);
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::post('/users', [UserController::class, 'store']);
     Route::post('/users/{id}', [UserController::class, 'update']);
@@ -52,3 +50,6 @@ Route::middleware('auth.api')->group(function () {
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
+//route untuk menampilkan total
+Route::get('/total-siswa', [SiswaController::class, 'getTotalSiswa']);
+Route::get('/total-users', [UserController::class, 'getTotalUsers']);

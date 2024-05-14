@@ -9,25 +9,33 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
 
+
 class SiswaController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->query('per_page', 10);
         $data_siswa = [];
-        $data = Siswa::orderBy('nama', 'asc')->get();
-
+    
+        $data = Siswa::orderBy('nama', 'asc')->paginate($perPage);
+    
         foreach ($data as $siswa) {
             $siswa->gambar = '/storage/images/' . $siswa->gambar;
             $data_siswa[] = $siswa;
         }
-
+    
         return response()->json([
             'status' => true,
             'message' => 'Data Ditemukan',
-            'data' => $data_siswa
+            'data' => $data_siswa,
+            'meta' => [
+                'currentpage' => $data->currentPage(),  
+                'total' => $data->total(),
+            ],
         ], 200);
     }
+    
     public function GetTotalSiswa()
     {
         $totalSiswa = Siswa::count();
