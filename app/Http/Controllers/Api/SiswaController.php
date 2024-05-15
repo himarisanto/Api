@@ -31,7 +31,11 @@ class SiswaController extends Controller
             'data' => $data_siswa,
             'meta' => [
                 'currentpage' => $data->currentPage(),  
-                'total' => $data->total(),
+                // 'total' => $data->total(),
+                'per_page' => $data->perPage(),
+
+                'last_page' => $data->lastPage(),
+
             ],
         ], 200);
     }
@@ -122,7 +126,6 @@ class SiswaController extends Controller
             $validateDataSiswa['nama'] = 'required|string';
         }
         if ($request->has('kelas')) {
-            
             $validateDataSiswa['kelas'] = 'required|string';
         }
         if ($request->has('jurusan')) {

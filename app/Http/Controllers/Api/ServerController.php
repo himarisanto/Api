@@ -25,8 +25,10 @@ class ServerController extends Controller
             'message' => 'Data Ditemukan di database',
             'data' => $data_servers,
             'meta' => [
-                'currentpage' => $servers->currentPage(),  
-                'total' => $servers->total(),
+                'currentpage' => $servers->currentPage(),
+                'per_page' => $servers->perPage(),
+                'last_page' => $servers->lastPage(),
+
             ],
         ], 200);
     }

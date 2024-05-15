@@ -18,13 +18,14 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
+        $perPage = $request->query('per_page', 10);
         $data_users = [];
 
         $loginUser = Auth::guard('api')->user();
         if ($loginUser && $loginUser->level === 'admin') {
-            $users = User::all();
+            $users = User::orderBy('name', 'asc')->paginate($perPage);
         } else {
-            $users = User::where('id', $loginUser->id)->get();
+            $users = User::where('id', $loginUser->id)->paginate($perPage);
         }
 
         foreach ($users as $user) {
@@ -35,9 +36,15 @@ class UserController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Sukses mengambil data',
-            'data' => $data_users
+            'data' => $data_users,
+            'meta' => [
+                'currentpage' => $users->currentPage(),
+                'per_page' => $users->perPage(),
+                'last_page' => $users->lastPage(),
+            ],
         ], 200);
     }
+
     public function GetTotalUsers()
     {
         $totalUsers = User::count();
