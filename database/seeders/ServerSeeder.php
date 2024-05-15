@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Server;
-use Illuminate\Support\Str;
+use Faker\Factory as Faker;
 
 class ServerSeeder extends Seeder
 {
@@ -15,16 +15,17 @@ class ServerSeeder extends Seeder
      */
     public function run()
     {
-       
-        for ($i = 0; $i < 26; $i++) {
+        $faker = Faker::create();
+
+        for ($i = 0; $i < 20; $i++) {
             Server::create([
                 'nama_koneksi' => 'Server ' . ($i + 1),
-                'driver' => 'mysql',
-                'host' => 'localhost',
-                'port' => 3306,
-                'username' => 'root',
-                'password' => Str::random(10),
-                'note' => 'Dummy server ' . ($i + 1),
+                'driver' => $faker->randomElement(['mysql', 'pgsql', 'sqlite', 'sqlsrv']),
+                'host' => $faker->ipv4,
+                'port' => $faker->numberBetween(1024, 65535),
+                'username' => $faker->userName,
+                'password' => $faker->password,
+                'note' => $faker->sentence,
             ]);
         }
     }

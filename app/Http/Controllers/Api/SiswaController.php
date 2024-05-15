@@ -122,6 +122,7 @@ class SiswaController extends Controller
             $validateDataSiswa['nama'] = 'required|string';
         }
         if ($request->has('kelas')) {
+            
             $validateDataSiswa['kelas'] = 'required|string';
         }
         if ($request->has('jurusan')) {
