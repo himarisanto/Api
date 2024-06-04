@@ -6,19 +6,11 @@ use App\Http\Controllers\Api\SiswaController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\ServerController;
+use App\Http\Controllers\Api\QueryController;
+use App\Http\Controllers\Api\ExecController;
 
 
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -42,8 +34,19 @@ Route::middleware('auth.api')->group(function () {
     Route::get('/server', [ServerController::class, 'index']);
     Route::post('/server', [ServerController::class, 'store']);
     Route::get('/server/{server}', [ServerController::class, 'show']);
-    Route::post('/server/{server}', [ServerController::class, 'update']);
+    Route::put('/server/{server}', [ServerController::class, 'update']);
     Route::delete('/server/{server}', [ServerController::class, 'destroy']);
+
+    //route crud Query
+    Route::get('/query', [QueryController::class, 'index']);
+    Route::get('/queries', [QueryController::class, 'index']);
+    Route::post('/queries', [QueryController::class, 'store']);
+    Route::get('/queries/{id}', [QueryController::class, 'show']);
+    Route::put('/queries/{id}', [QueryController::class, 'update']); 
+    Route::delete('/queries/{id}', [QueryController::class, 'destroy']);
+    Route::post('/execute/{query_id}', [ExecController::class, 'execute']);
+    Route::post('/exec-query', [ExecController::class, 'executeQuery']);
+    Route::get('/execute-query/{query_id}', [ExecController::class, 'executeQuery']);
 });
 
 //login register api siswa 

@@ -15,7 +15,8 @@ class ServerController extends Controller
         $perPage = $request->query('per_page', 10);
         $data_servers = [];
 
-        $servers = Server::orderBy('nama_koneksi', 'asc')->paginate($perPage);
+
+      $servers = Server::orderBy('nama_koneksi', 'asc')->paginate($perPage);
         foreach ($servers as $server) {
             $data_servers[] = $server;
         }
@@ -27,6 +28,7 @@ class ServerController extends Controller
             'meta' => [
                 'currentpage' => $servers->currentPage(),
                 'per_page' => $servers->perPage(),
+                'total' => $servers->total(),
                 'last_page' => $servers->lastPage(),
 
             ],
@@ -56,7 +58,7 @@ class ServerController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 400);
         }
 
-        $server = Server::create($request->all());
+        $server = Server::create($request->all()); 
 
         if ($server) {
             $message = 'Data berhasil dimasukkan kedatabase.';
